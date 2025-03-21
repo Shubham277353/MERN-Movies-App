@@ -10,9 +10,19 @@ import MovieTabs from "./MovieTabs";
 
 const MovieDetails = () => {
   const { id: movieId } = useParams();
+  console.log("Movie ID from useParams:", movieId);
   const [rating, setRating] = useState(0);
   const [comment, setComment] = useState("");
-  const { data: movie, refetch } = useGetSpecificMovieQuery(movieId);
+  const {
+    data: movie,
+    error,
+    isLoading,
+    refetch,
+  } = useGetSpecificMovieQuery(movieId);
+  console.log("Movie ID from useParams:", movieId);
+  console.log("Movie Data:", movie);
+  console.log("Error:", error);
+  console.log("Loading State:", isLoading);
   const { userInfo } = useSelector((state) => state.auth);
   const [createReview, { isLoading: loadingMovieReview }] =
     useAddMovieReviewMutation();
@@ -34,6 +44,20 @@ const MovieDetails = () => {
       toast.error(error.data || error.message);
     }
   };
+
+  if (isLoading) {
+    return <p className="text-white text-center text-xl">Loading movie details...</p>;
+  }
+  
+  if (error) {
+    return <p className="text-white text-center text-xl">Failed to load movie details</p>;
+  }
+  
+  if (!movie) {
+    return <p className="text-white text-center text-xl">No movie found</p>;
+  }
+  
+  console.log("MovieDetails Component Mounted!");
 
   return (
     <>

@@ -19,6 +19,12 @@ import {
 const AllMovies = () => {
   const dispatch = useDispatch();
   const { data } = useGetAllMoviesQuery();
+
+
+console.log("Fetched Movies Data:", data); 
+console.log("Error:", error);
+console.log("Loading Status:", isLoading);
+
   const { data: genres } = useFetchGenresQuery();
   const { data: newMovies } = useGetNewMoviesQuery();
   const { data: topMovies } = useGetTopMoviesQuery();
@@ -30,6 +36,7 @@ const AllMovies = () => {
   const uniqueYears = Array.from(new Set(movieYears));
 
   useEffect(() => {
+    console.log("Dispatching movies to Redux:", data);
     dispatch(setFilteredMovies(data || []));
     dispatch(setMovieYears(movieYears));
     dispatch(setUniqueYears(uniqueYears));
@@ -72,6 +79,7 @@ const AllMovies = () => {
         break;
     }
   };
+  
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 -translate-y-[5rem]">
@@ -138,6 +146,7 @@ const AllMovies = () => {
               </section>
             </section>
           </div>
+          
 
           <section className="mt-[10rem] w-screen flex justify-center items-center flex-wrap">
             {filteredMovies?.map((movie) => (

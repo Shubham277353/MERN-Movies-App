@@ -1,5 +1,6 @@
 import Genre from "../models/Genre.js";
 import asyncHandler from "../middlewares/asyncHandler.js";
+import axios from "axios";
 
 const createGenre = asyncHandler(async (req, res) => {
   try {
@@ -62,11 +63,14 @@ const removeGenre = asyncHandler(async (req, res) => {
 
 const listGenres = asyncHandler(async (req, res) => {
   try {
-    const all = await Genre.find({});
-    res.json(all);
+    const response = await axios.get(
+      `https://api.themoviedb.org/3/genre/movie/list?api_key=${process.env.TMDB_API_KEY}`
+    );
+    console.log("TMDb Genres:", response.data); // Debugging
+    res.json(response.data.genres);
   } catch (error) {
-    console.log(error);
-    return res.status(400).json(error.message);
+    console.log("TMDb API Error:", error.response?.data || error.message);
+    return res.status(400).json({ error: "Failed to fetch genres from TMDb" });
   }
 });
 

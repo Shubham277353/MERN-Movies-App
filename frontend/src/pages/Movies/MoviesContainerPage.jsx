@@ -8,11 +8,18 @@ import {
 import { useFetchGenresQuery } from "../../redux/api/genre";
 import SliderUtil from "../../component/SliderUtil";
 
+
 const MoviesContainerPage = () => {
   const { data } = useGetNewMoviesQuery();
   const { data: topMovies } = useGetTopMoviesQuery();
   const { data: genres } = useFetchGenresQuery();
   const { data: randomMovies } = useGetRandomMoviesQuery();
+
+  console.log("New Movies:", data);
+console.log("Top Movies:", topMovies);
+console.log("Genres:", genres);
+console.log("Random Movies:", randomMovies);
+
 
   const [selectedGenre, setSelectedGenre] = useState(null);
 

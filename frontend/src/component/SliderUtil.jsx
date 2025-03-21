@@ -12,10 +12,12 @@ const SliderUtil = ({ data }) => {
     slidesToScroll: 2,
   };
 
+
+
   return (
     <Slider {...settings}>
-      {data?.map((movie) => (
-        <MovieCard key={movie._id} movie={movie} />
+      {data?.map((movie, index) => (
+        <MovieCard key={movie._id || index} movie={movie} />
       ))}
     </Slider>
   );
