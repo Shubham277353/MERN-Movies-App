@@ -1,6 +1,18 @@
 import { Link } from "react-router-dom";
 
 const MovieCard = ({ movie }) => {
+
+  console.log("Rendering MovieCard with:", movie);
+
+  const imageUrl = movie.poster_path
+  ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
+  : "https://via.placeholder.com/200";
+
+console.log("Image URL:", imageUrl);
+
+
+
+
   return (
     <div key={movie._id} className="relative group m-[2rem]">
       <Link to={`/movies/${movie._id}`}>

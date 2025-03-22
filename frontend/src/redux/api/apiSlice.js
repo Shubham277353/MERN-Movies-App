@@ -4,6 +4,8 @@ import { BASE_URL } from "../constants";
 const baseQuery = fetchBaseQuery({ baseUrl: BASE_URL });
 
 export const apiSlice = createApi({
+  reducerPath: "api",
   baseQuery,
+  tagTypes: ["Movie"], // Ensure correct caching
   endpoints: () => ({}),
 });
