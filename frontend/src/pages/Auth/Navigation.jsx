@@ -26,11 +26,14 @@ const Navigation = () => {
 
   const logoutHandler = async () => {
     try {
-      await logoutApiCall().unwrap();
-      dispatch(logout());
-      navigate("/login");
+      console.log("Attempting to logout...");
+      await logoutApiCall().unwrap(); // Call the logout API
+      console.log("Logout API call successful");
+      dispatch(logout()); // Dispatch the logout action to clear local state
+      console.log("Local state cleared");
+      navigate("/login"); // Redirect to login page
     } catch (error) {
-      console.error(error);
+      console.error("Failed to logout:", error);
     }
   };
 

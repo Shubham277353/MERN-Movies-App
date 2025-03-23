@@ -1,5 +1,6 @@
 import axios from "axios";
 import dotenv from "dotenv";
+
 // import asyncHandler from "express-async-handler";
 
 dotenv.config();
@@ -78,6 +79,8 @@ const getMovieCredits = async (req, res) => {
   }
 };
 
+import Review from "../models/reviewModel.js"; // Import the Review model
+
 const addMovieReview = async (req, res) => {
   console.log("Received review request:", req.body);
   console.log("Movie ID:", req.params.id);
@@ -86,10 +89,19 @@ const addMovieReview = async (req, res) => {
     const { rating, comment } = req.body;
     const movieId = req.params.id;
 
+    // Validate rating and comment
+    if (!rating || rating < 1 || rating > 5) {
+      return res.status(400).json({ error: "Rating must be between 1 and 5" });
+    }
+    if (!comment || comment.trim() === "") {
+      return res.status(400).json({ error: "Comment is required" });
+    }
+
     const review = new Review({
       movieId,
       rating,
       comment,
+      user: req.user._id, // Add the user ID from the authenticated user
     });
 
     await review.save();

@@ -42,7 +42,7 @@ const MovieDetails = () => {
     try {
       await createReview({
         id: movieId,
-        rating,
+        rating: Number(rating), // Ensure rating is a number
         comment,
       }).unwrap();
 
