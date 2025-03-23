@@ -1,5 +1,6 @@
 import axios from "axios";
 import dotenv from "dotenv";
+// import asyncHandler from "express-async-handler";
 
 dotenv.config();
 
@@ -63,4 +64,41 @@ const getRandomMovies = async (req, res) => {
   }
 };
 
-export { getAllMovies, getSpecificMovie, getNewMovies, getTopMovies, getRandomMovies };
+const getMovieCredits = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const response = await axios.get(
+      `${TMDB_BASE_URL}/movie/${id}/credits?api_key=${TMDB_API_KEY}`
+    );
+    res.json(response.data);
+  } catch (error) {
+    console.error("Error fetching movie credits:", error);
+    res.status(500).json({ error: "Failed to fetch movie credits" });
+  }
+};
+
+const addMovieReview = async (req, res) => {
+  console.log("Received review request:", req.body);
+  console.log("Movie ID:", req.params.id);
+
+  try {
+    const { rating, comment } = req.body;
+    const movieId = req.params.id;
+
+    const review = new Review({
+      movieId,
+      rating,
+      comment,
+    });
+
+    await review.save();
+    res.status(201).json({ message: "Review added", review });
+  } catch (error) {
+    console.error("Error saving review:", error);
+    res.status(500).json({ error: "Failed to add review" });
+  }
+};
+
+
+export { getAllMovies, getSpecificMovie, addMovieReview, getMovieCredits, getNewMovies, getTopMovies, getRandomMovies };

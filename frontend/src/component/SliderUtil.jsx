@@ -4,7 +4,8 @@ import "slick-carousel/slick/slick-theme.css";
 import MovieCard from "../pages/Movies/MovieCard";
 
 const SliderUtil = ({ data }) => {
-  console.log("SliderUtil received data:", data);
+  // console.log("SliderUtil received data:", data);
+  
   if (!data || data.length === 0) return <p>Loading movies...</p>;
 
   const settings = {
@@ -22,6 +23,7 @@ const SliderUtil = ({ data }) => {
       {data.map((movie, index) => (
   // <MovieCard key={index} movie={movie} />
   <MovieCard key={movie.id || index} movie={movie} />
+  
 ))}
 
     </Slider>

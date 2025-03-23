@@ -36,10 +36,11 @@ const MovieTabs = ({ userInfo, submitHandler, comment, setComment, movie }) => {
       </section>
 
       <section className="mt-[3rem]">
-        <div>{movie?.reviews.length === 0 && <p>No Reviews</p>}</div>
+        {/* Prevents error if reviews is undefined */}
+        {(!movie?.reviews || movie.reviews.length === 0) && <p>No Reviews</p>}
 
         <div>
-          {movie?.reviews.map((review) => (
+          {movie?.reviews?.map((review) => (
             <div
               key={review._id}
               className="bg-[#1A1A1A] p-4 rounded-lg w-[50%] mt-[2rem]"
@@ -47,11 +48,11 @@ const MovieTabs = ({ userInfo, submitHandler, comment, setComment, movie }) => {
               <div className="flex justify-between">
                 <strong className="text-[#B0B0B0]">{review.name}</strong>
                 <p className="text-[#B0B0B0]">
-                  {review.createdAt.substring(0, 10)}
+                  {review.createdAt?.substring(0, 10) || "Unknown Date"}
                 </p>
               </div>
 
-              <p className="my-4">{review.comment}</p>
+              <p className="my-4">{review.comment || "No comment provided."}</p>
             </div>
           ))}
         </div>

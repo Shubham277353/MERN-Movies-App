@@ -1,7 +1,9 @@
 import { apiSlice } from "./apiSlice";
 import { MOVIE_URL, UPLOAD_URL } from "../constants";
 
+
 export const moviesApiSlice = apiSlice.injectEndpoints({
+  
   endpoints: (builder) => ({
     getAllMovies: builder.query({
       query: () => `${MOVIE_URL}/all-movies`,
@@ -26,10 +28,10 @@ export const moviesApiSlice = apiSlice.injectEndpoints({
       query: ({ id, rating, comment }) => ({
         url: `${MOVIE_URL}/${id}/reviews`,
         method: "POST",
-        body: { rating, id, comment },
+        body: { rating, comment }, // ✅ Remove "id" from body
       }),
     }),
-
+    
     deleteComment: builder.mutation({
       query: ({ movieId, reviewId }) => ({
         url: `${MOVIE_URL}/delete-comment`,
@@ -37,18 +39,12 @@ export const moviesApiSlice = apiSlice.injectEndpoints({
         body: { movieId, reviewId },
       }),
     }),
-
     deleteMovie: builder.mutation({
       query: (id) => ({
         url: `${MOVIE_URL}/delete-movie/${id}`,
         method: "DELETE",
       }),
     }),
-
-    getSpecificMovie: builder.query({
-      query: (id) => `${MOVIE_URL}/specific-movie/${id}`,
-    }),
-
     uploadImage: builder.mutation({
       query: (formData) => ({
         url: `${UPLOAD_URL}`,
@@ -56,15 +52,19 @@ export const moviesApiSlice = apiSlice.injectEndpoints({
         body: formData,
       }),
     }),
-
+    
+    getSpecificMovie: builder.query({
+      query: (id) => `${MOVIE_URL}/specific-movie/${id}`,
+    }),
+    getMovieCredits: builder.query({
+      query: (id) => `${MOVIE_URL}/movie/${id}/credits`, // Ensure the correct path
+    }),
     getNewMovies: builder.query({
       query: () => `${MOVIE_URL}/new-movies`,
     }),
-
     getTopMovies: builder.query({
       query: () => `${MOVIE_URL}/top-movies`,
     }),
-
     getRandomMovies: builder.query({
       query: () => `${MOVIE_URL}/random-movies`,
     }),
@@ -80,7 +80,7 @@ export const {
   useGetSpecificMovieQuery,
   useUploadImageMutation,
   useDeleteMovieMutation,
-  //
+  useGetMovieCreditsQuery,  // <-- ADD THIS EXPORT
   useGetNewMoviesQuery,
   useGetTopMoviesQuery,
   useGetRandomMoviesQuery,
