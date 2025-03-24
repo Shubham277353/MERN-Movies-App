@@ -32,6 +32,7 @@ const Login = () => {
 
     try {
       const res = await login({ email, password }).unwrap();
+      localStorage.setItem('token', res.token);
       dispatch(setCredentials({ ...res }));
       navigate(redirect);
     } catch (err) {

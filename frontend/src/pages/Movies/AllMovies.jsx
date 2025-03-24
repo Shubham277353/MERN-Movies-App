@@ -1,13 +1,13 @@
-import { useGetAllMoviesQuery } from "../../redux/api/movies";
-import { useFetchGenresQuery } from "../../redux/api/genre";
+import { useState, useEffect } from "react";
+import { useSelector, useDispatch } from "react-redux";
 import {
+  useGetAllMoviesQuery,
   useGetNewMoviesQuery,
   useGetTopMoviesQuery,
   useGetRandomMoviesQuery,
 } from "../../redux/api/movies";
+import { useFetchGenresQuery } from "../../redux/api/genre";
 import MovieCard from "./MovieCard";
-import { useEffect } from "react";
-import { useSelector, useDispatch } from "react-redux";
 import banner from "../../assets/banner.jpg";
 import {
   setMoviesFilter,
@@ -18,145 +18,166 @@ import {
 
 const AllMovies = () => {
   const dispatch = useDispatch();
-
-  console.log("Calling useGetAllMoviesQuery...");
-  const { data, isLoading, error } = useGetAllMoviesQuery();
-  console.log("Movies Data:", data);
-
+  const { data: movies, isLoading, error } = useGetAllMoviesQuery();
   const { data: genres } = useFetchGenresQuery();
   const { data: newMovies } = useGetNewMoviesQuery();
   const { data: topMovies } = useGetTopMoviesQuery();
   const { data: randomMovies } = useGetRandomMoviesQuery();
+  const { moviesFilter, filteredMovies, uniqueYears } = useSelector(
+    (state) => state.movies
+  );
 
-  const { moviesFilter, filteredMovies } = useSelector((state) => state.movies);
-
-  const movieYears = data?.map((movie) => movie.year) || [];
-  const uniqueYears = Array.from(new Set(movieYears));
+  const [isScrolled, setIsScrolled] = useState(false);
 
   useEffect(() => {
-    if (data) {
-      dispatch(setFilteredMovies(data));
+    if (movies) {
+      const movieYears = movies.map((movie) =>
+        new Date(movie.release_date).getFullYear()
+      );
+      const uniqueYears = Array.from(new Set(movieYears)).sort((a, b) => b - a);
+      
       dispatch(setMovieYears(movieYears));
       dispatch(setUniqueYears(uniqueYears));
+      dispatch(setFilteredMovies(movies));
     }
-  }, [data, dispatch]);
+
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 50);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [movies, dispatch]);
 
   const handleSearchChange = (e) => {
-    if (!data) return;
-    dispatch(setMoviesFilter({ searchTerm: e.target.value }));
-
-    const filteredMovies = data.filter((movie) =>
-      movie.name.toLowerCase().includes(e.target.value.toLowerCase())
+    const searchTerm = e.target.value.toLowerCase();
+    dispatch(setMoviesFilter({ searchTerm }));
+    const filtered = movies.filter((movie) =>
+      movie.title.toLowerCase().includes(searchTerm)
     );
-
-    dispatch(setFilteredMovies(filteredMovies));
+    dispatch(setFilteredMovies(filtered));
   };
 
-  const handleGenreClick = (genreId) => {
-    if (!data) return;
-    const filterByGenre = data.filter((movie) => movie.genre === genreId);
-    dispatch(setFilteredMovies(filterByGenre));
-  };
-
-  const handleYearChange = (year) => {
-    if (!data) return;
-    const filterByYear = data.filter((movie) => movie.year === +year);
-    dispatch(setFilteredMovies(filterByYear));
-  };
-
-  const handleSortChange = (sortOption) => {
-    switch (sortOption) {
-      case "new":
-        dispatch(setFilteredMovies(newMovies || []));
-        break;
-      case "top":
-        dispatch(setFilteredMovies(topMovies || []));
-        break;
-      case "random":
-        dispatch(setFilteredMovies(randomMovies || []));
-        break;
-      default:
-        dispatch(setFilteredMovies([]));
-        break;
+  const handleFilterChange = (type, value) => {
+    let filtered = [...movies];
+    
+    if (type === 'genre' && value) {
+      filtered = filtered.filter(movie => movie.genre_ids.includes(+value));
     }
+    
+    if (type === 'year' && value) {
+      filtered = filtered.filter(
+        movie => new Date(movie.release_date).getFullYear() === +value
+      );
+    }
+    
+    if (type === 'sort' && value) {
+      switch (value) {
+        case "new": filtered = newMovies || []; break;
+        case "top": filtered = topMovies || []; break;
+        case "random": filtered = randomMovies || []; break;
+        default: break;
+      }
+    }
+    
+    dispatch(setFilteredMovies(filtered));
   };
 
-  if (isLoading) return <p>Loading movies...</p>;
-  if (error) return <p>Error loading movies.</p>;
+  if (isLoading) return (
+    <div className="min-h-screen flex items-center justify-center">
+      <div className="animate-pulse text-2xl text-teal-400">Loading cinematic magic...</div>
+    </div>
+  );
+  
+  if (error) return (
+    <div className="min-h-screen flex items-center justify-center">
+      <div className="text-2xl text-red-400">Error loading the movie reel</div>
+    </div>
+  );
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 -translate-y-[5rem]">
-      <section>
-        <div
-          className="relative h-[50rem] w-screen mb-10 flex items-center justify-center bg-cover"
-          style={{ backgroundImage: `url(${banner})` }}
-        >
-          <div className="absolute inset-0 bg-gradient-to-b from-gray-800 to-black opacity-60"></div>
+    <div className="min-h-screen bg-gray-900">
+      {/* Hero Banner */}
+      <div className="relative h-screen w-full flex items-center justify-center bg-cover bg-center" 
+           style={{ backgroundImage: `url(${banner})` }}>
+        <div className="absolute inset-0 bg-gradient-to-b from-black/80 to-black/30"></div>
+        
+        <div className="relative z-10 text-center px-4">
+          <h1 className="text-5xl md:text-7xl lg:text-8xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-teal-400 to-purple-500">
+            The Movie Vault
+          </h1>
+          <p className="text-xl md:text-2xl text-gray-300 mb-8">
+            Unlimited stories. Endless entertainment.
+          </p>
+        </div>
+      </div>
 
-          <div className="relative z-10 text-center text-white mt-[10rem]">
-            <h1 className="text-8xl font-bold mb-4">The Movies Hub</h1>
-            <p className="text-2xl">
-              Cinematic Odyssey: Unveiling the Magic of Movies
-            </p>
-          </div>
-
-          <section className="absolute -bottom-[5rem]">
+      {/* Sticky Filter Bar */}
+      <div className={`sticky top-0 z-50 py-4 px-6 bg-gray-800/95 backdrop-blur-md transition-all duration-300 ${isScrolled ? 'shadow-xl' : ''}`}>
+        <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center gap-4">
+          <div className="flex-1 w-full">
             <input
               type="text"
-              className="w-[100%] h-[5rem] border px-10 outline-none rounded"
-              placeholder="Search Movie"
+              className="w-full p-4 rounded-lg bg-gray-700 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500"
+              placeholder="Search for movies..."
               value={moviesFilter.searchTerm}
               onChange={handleSearchChange}
             />
-            <section className="sorts-container mt-[2rem] ml-[10rem] w-[30rem]">
-              <select
-                className="border p-2 rounded text-black"
-                value={moviesFilter.selectedGenre}
-                onChange={(e) => handleGenreClick(e.target.value)}
-              >
-                <option value="">Genres</option>
-                {genres?.map((genre) => (
-                  <option key={genre._id} value={genre._id}>
-                    {genre.name}
-                  </option>
-                ))}
-              </select>
-
-              <select
-                className="border p-2 rounded ml-4 text-black"
-                value={moviesFilter.selectedYear}
-                onChange={(e) => handleYearChange(e.target.value)}
-              >
-                <option value="">Year</option>
-                {uniqueYears.map((year) => (
-                  <option key={year} value={year}>
-                    {year}
-                  </option>
-                ))}
-              </select>
-
-              <select
-                className="border p-2 rounded ml-4 text-black"
-                value={moviesFilter.selectedSort}
-                onChange={(e) => handleSortChange(e.target.value)}
-              >
-                <option value="">Sort By</option>
-                <option value="new">New Movies</option>
-                <option value="top">Top Movies</option>
-                <option value="random">Random Movies</option>
-              </select>
-            </section>
-          </section>
+          </div>
+          
+          <div className="flex flex-wrap gap-2 w-full md:w-auto">
+            <select
+              className="p-3 rounded-lg bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-teal-500"
+              onChange={(e) => handleFilterChange('genre', e.target.value)}
+            >
+              <option value="">All Genres</option>
+              {genres?.map((genre) => (
+                <option key={genre.id} value={genre.id}>
+                  {genre.name}
+                </option>
+              ))}
+            </select>
+            
+            <select
+              className="p-3 rounded-lg bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-teal-500"
+              onChange={(e) => handleFilterChange('year', e.target.value)}
+            >
+              <option value="">All Years</option>
+              {uniqueYears?.map((year) => (
+                <option key={year} value={year}>
+                  {year}
+                </option>
+              ))}
+            </select>
+            
+            <select
+              className="p-3 rounded-lg bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-teal-500"
+              onChange={(e) => handleFilterChange('sort', e.target.value)}
+            >
+              <option value="">Sort By</option>
+              <option value="new">New Releases</option>
+              <option value="top">Top Rated</option>
+              <option value="random">Staff Picks</option>
+            </select>
+          </div>
         </div>
+      </div>
 
-        <section className="mt-[10rem] w-screen flex justify-center items-center flex-wrap">
-          {filteredMovies?.length > 0
-            ? filteredMovies.map((movie) => (
-                <MovieCard key={movie._id} movie={movie} />
-              ))
-            : data?.map((movie) => <MovieCard key={movie._id} movie={movie} />)}
-        </section>
-      </section>
+      {/* Movies Grid */}
+      <div className="max-w-7xl mx-auto px-4 py-12">
+        <h2 className="text-3xl font-bold mb-8 text-white">
+          {filteredMovies.length} {filteredMovies.length === 1 ? 'Movie' : 'Movies'} Found
+        </h2>
+        
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+          {(filteredMovies.length ? filteredMovies : movies)?.map((movie) => (
+            <MovieCard 
+              key={movie._id} 
+              movie={movie} 
+              className="transition-transform hover:scale-105 hover:shadow-2xl"
+            />
+          ))}
+        </div>
+      </div>
     </div>
   );
 };

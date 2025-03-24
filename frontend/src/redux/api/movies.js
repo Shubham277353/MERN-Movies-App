@@ -25,11 +25,18 @@ export const moviesApiSlice = apiSlice.injectEndpoints({
     }),
 
     addMovieReview: builder.mutation({
-      query: ({ id, rating, comment }) => ({
-        url: `${MOVIE_URL}/${id}/reviews`,
-        method: "POST",
-        body: { rating, comment }, // ✅ Remove "id" from body
-      }),
+      query: ({ id, rating, comment }) => {
+        const token = localStorage.getItem('token') || '';
+        return {
+          url: `${MOVIE_URL}/${id}/reviews`,
+          method: "POST",
+          body: { rating, comment },
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          credentials: 'include', // For cookies
+        };
+      },
     }),
     
     deleteComment: builder.mutation({
@@ -80,7 +87,7 @@ export const {
   useGetSpecificMovieQuery,
   useUploadImageMutation,
   useDeleteMovieMutation,
-  useGetMovieCreditsQuery,  // <-- ADD THIS EXPORT
+  useGetMovieCreditsQuery,
   useGetNewMoviesQuery,
   useGetTopMoviesQuery,
   useGetRandomMoviesQuery,

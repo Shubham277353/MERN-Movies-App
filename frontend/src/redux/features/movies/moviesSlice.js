@@ -7,9 +7,8 @@ const moviesSlice = createSlice({
       searchTerm: "",
       selectedGenre: "",
       selectedYear: "",
-      selectedSort: [],
+      selectedSort: "",  // ✅ Changed from [] to ""
     },
-
     filteredMovies: [],
     movieYears: [],
     uniqueYear: [],
@@ -17,7 +16,7 @@ const moviesSlice = createSlice({
 
   reducers: {
     setMoviesFilter: (state, action) => {
-      state.moviesFilter = { ...state.moviesFilter, ...action.payload };
+      Object.assign(state.moviesFilter, action.payload);  // ✅ Improved merging
     },
 
     setFilteredMovies: (state, action) => {

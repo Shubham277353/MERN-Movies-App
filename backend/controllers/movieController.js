@@ -1,6 +1,6 @@
 import axios from "axios";
 import dotenv from "dotenv";
-
+import Review from "../models/reviewModel.js";
 // import asyncHandler from "express-async-handler";
 
 dotenv.config();
@@ -22,12 +22,36 @@ const getAllMovies = async (req, res) => {
 const getSpecificMovie = async (req, res) => {
   try {
     const { id } = req.params;
-    const response = await axios.get(
+    
+    // 1. Get movie data from TMDB
+    const movieResponse = await axios.get(
       `${TMDB_BASE_URL}/movie/${id}?api_key=${TMDB_API_KEY}`
-    );
-    res.json(response.data);
+    ).catch(err => {
+      console.error("TMDB API Error:", err.response?.data || err.message);
+      throw new Error("Failed to fetch movie details from TMDB");
+    });
+
+    // 2. Get reviews from your database
+    const reviews = await Review.find({ movieId: id })
+      .sort({ createdAt: -1 })
+      .catch(err => {
+        console.error("Database Error:", err);
+        return []; // Return empty array if reviews fail to load
+      });
+
+    // 3. Combine data
+    const responseData = {
+      ...movieResponse.data,
+      reviews
+    };
+
+    res.json(responseData);
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    console.error("Error in getSpecificMovie:", error);
+    res.status(500).json({ 
+      error: error.message || "Error loading movie",
+      stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
+    });
   }
 };
 
@@ -79,38 +103,32 @@ const getMovieCredits = async (req, res) => {
   }
 };
 
-import Review from "../models/reviewModel.js"; // Import the Review model
 
 const addMovieReview = async (req, res) => {
-  console.log("Received review request:", req.body);
-  console.log("Movie ID:", req.params.id);
+  const { rating, comment, userName } = req.body;
+  const { id: movieId } = req.params;
+
+  if (!rating || !comment) {
+    return res.status(400).json({ message: "Rating and comment are required" });
+  }
 
   try {
-    const { rating, comment } = req.body;
-    const movieId = req.params.id;
-
-    // Validate rating and comment
-    if (!rating || rating < 1 || rating > 5) {
-      return res.status(400).json({ error: "Rating must be between 1 and 5" });
-    }
-    if (!comment || comment.trim() === "") {
-      return res.status(400).json({ error: "Comment is required" });
-    }
-
-    const review = new Review({
+    const review = await Review.create({
       movieId,
       rating,
       comment,
-      user: req.user._id, // Add the user ID from the authenticated user
+      userName: userName || "Anonymous", // Simple anonymous handling
+      createdAt: new Date()
     });
 
-    await review.save();
-    res.status(201).json({ message: "Review added", review });
+    res.status(201).json(review);
   } catch (error) {
-    console.error("Error saving review:", error);
+    console.error("Error adding review:", error);
     res.status(500).json({ error: "Failed to add review" });
   }
 };
+
+
 
 
 export { getAllMovies, getSpecificMovie, addMovieReview, getMovieCredits, getNewMovies, getTopMovies, getRandomMovies };

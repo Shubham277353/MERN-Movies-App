@@ -6,16 +6,16 @@ const MovieCard = ({ movie }) => {
     : "https://via.placeholder.com/300"; // Fallback image
 
   return (
-    <div key={movie.id} className="relative group m-[2rem]">
+    <div className="relative group m-4">
       <Link to={`/movies/${movie.id}`}>
         <img
           src={imageUrl}
           alt={movie.title || "Movie"}
-          className="w-[20rem] h-[20rem] rounded m-0 p-0 transition duration-300 ease-in-out transform group-hover:opacity-50"
+          className="w-64 h-96 object-cover rounded-lg transition duration-300 ease-in-out transform group-hover:opacity-75"
         />
       </Link>
 
-      <p className="absolute top-[85%] left-[2rem] right-0 bottom-0 opacity-0 transition duration-300 ease-in-out group-hover:opacity-100">
+      <p className="absolute bottom-4 left-4 text-white text-lg font-semibold opacity-0 transition duration-300 ease-in-out group-hover:opacity-100">
         {movie.title}
       </p>
     </div>

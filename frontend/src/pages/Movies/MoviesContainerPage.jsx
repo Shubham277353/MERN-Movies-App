@@ -4,101 +4,58 @@ import {
   useGetTopMoviesQuery,
   useGetRandomMoviesQuery,
 } from "../../redux/api/movies";
-import { useFetchGenresQuery } from "../../redux/api/genre";
 import SliderUtil from "../../component/SliderUtil";
 
 const MoviesContainerPage = () => {
-  // Fetch movie & genre data
   const { data: newMovies, isLoading: newMoviesLoading } =
     useGetNewMoviesQuery();
   const { data: topMovies, isLoading: topMoviesLoading } =
     useGetTopMoviesQuery();
-  const { data: genres, isLoading: genresLoading } = useFetchGenresQuery();
   const { data: randomMovies, isLoading: randomMoviesLoading } =
     useGetRandomMoviesQuery();
 
-  // console.log("New Movies:", newMovies);
-  // console.log("Top Movies:", topMovies);
-  // console.log("Random Movies:", randomMovies);
-  // console.log("Genres:", genres);
-
-  const [selectedGenre, setSelectedGenre] = useState(null);
-
-  // Handle genre selection
-  const handleGenreClick = (genreId) => {
-    setSelectedGenre(genreId);
-  };
-
-  // Filter movies based on genre selection
-  const filteredMovies = newMovies?.filter(
-    (movie) => selectedGenre === null || movie.genre_ids?.includes(selectedGenre)
-  );
-  
-
-  // **Show a loading state until all data is ready**
-  if (
-    newMoviesLoading ||
-    topMoviesLoading ||
-    genresLoading ||
-    randomMoviesLoading
-  ) {
+  if (newMoviesLoading || topMoviesLoading || randomMoviesLoading) {
     return (
-      <div className="text-center text-lg font-semibold mt-10">
+      <div className="text-center text-lg font-semibold mt-10 text-white">
         Loading movies...
       </div>
     );
   }
 
   return (
-    <div className="flex flex-col lg:flex-row lg:justify-between items-center">
-      {/* Genre Selection */}
-
-      <nav className="ml-[4rem] flex flex-row xl:flex-col lg:flex-col md:flex-row sm:flex-row">
-        {genres?.map((g) => (
-          <button
-            key={g.id}
-            className={`transition duration-300 ease-in-out hover:bg-gray-200 block p-2 rounded mb-[1rem] text-lg ${
-              selectedGenre === g._id ? "bg-gray-200" : ""
-            }`}
-            onClick={() => handleGenreClick(g.id)}
-          >
-            {g.name}
-          </button>
-        ))}
-      </nav>
-
+    <div className="container mx-auto px-4 py-8">
       {/* Movie Sections */}
-      <section className="flex flex-col justify-center items-center w-full lg:w-auto">
-        <div className="w-full lg:w-[100rem] mb-8">
-          <h1 className="mb-5">Choose For You</h1>
-          
+      <div className="space-y-12">
+        {/* Random Movies */}
+        <div>
+          <h1 className="text-3xl font-bold mb-6 text-white">Choose For You</h1>
           {randomMovies?.length ? (
             <SliderUtil data={randomMovies} />
-            
           ) : (
-            <p>No movies available.</p>
-            
+            <p className="text-white">No movies available.</p>
           )}
         </div>
 
-        <div className="w-full lg:w-[100rem] mb-8">
-          <h1 className="mb-5">Top Movies</h1>
+        {/* Top Movies */}
+        <div>
+          <h1 className="text-3xl font-bold mb-6 text-white">Top Movies</h1>
           {topMovies?.length ? (
             <SliderUtil data={topMovies} />
           ) : (
-            <p>No top movies available.</p>
+            <p className="text-white">No top movies available.</p>
           )}
         </div>
 
-        <div className="w-full lg:w-[100rem] mb-8">
-          <h1 className="mb-5">Choose Movie</h1>
-          {filteredMovies?.length ? (
-            <SliderUtil data={filteredMovies} />
+        {/* Upcoming Movies */}
+        <div>
+          <h1 className="text-3xl font-bold mb-6 text-white">Upcoming Movies</h1>
+          {newMovies?.length ? (
+            <SliderUtil data={newMovies} />
           ) : (
-            <p>No movies available.</p>
+            <p className="text-white">No upcoming movies available.</p>
           )}
         </div>
-      </section>
+      </div>
     </div>
   );
 };

@@ -12,6 +12,7 @@ import genreRoutes from "./routes/genreRoutes.js";
 import moviesRoutes from "./routes/moviesRoutes.js";
 import uploadRoutes from "./routes/uploadRoutes.js";
 
+
 // Configuration
 dotenv.config();
 connectDB();
@@ -25,6 +26,11 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
+app.use(cors({
+    origin: 'http://localhost:5173', // Your frontend URL
+    credentials: true // Allow cookies
+  }));
+  
 const PORT = process.env.PORT || 3000;
 
 // Routes
@@ -32,6 +38,7 @@ app.use("/api/v1/users", userRoutes);
 app.use("/api/v1/genre", genreRoutes);
 app.use("/api/v1/movies", moviesRoutes);
 app.use("/api/v1/upload", uploadRoutes);
+
 
 const __dirname = path.resolve();
 app.use("/uploads", express.static(path.join(__dirname, "/uploads")));

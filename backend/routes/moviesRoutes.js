@@ -11,8 +11,9 @@ router.get("/new-movies", getNewMovies);
 router.get("/top-movies", getTopMovies);
 router.get("/random-movies", getRandomMovies);
 router.get("/movie/:id/credits", getMovieCredits);
-// router.post("/:id/reviews", addMovieReview);
-router.post("/:id/reviews", authenticate, addMovieReview);
+router.post('/:id/reviews', addMovieReview);
+
+
 
 
 
