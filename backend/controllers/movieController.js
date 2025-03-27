@@ -108,27 +108,50 @@ const addMovieReview = async (req, res) => {
   const { rating, comment, userName } = req.body;
   const { id: movieId } = req.params;
 
-  if (!rating || !comment) {
-    return res.status(400).json({ message: "Rating and comment are required" });
-  }
+  console.log("Received userName:", userName); // Debug log
 
   try {
     const review = await Review.create({
       movieId,
       rating,
       comment,
-      userName: userName || "Anonymous", // Simple anonymous handling
-      createdAt: new Date()
+      userName: userName?.trim() || "Anonymous" // Proper handling
     });
+
+    console.log("Saved review:", review); // Verify saved data
 
     res.status(201).json(review);
   } catch (error) {
-    console.error("Error adding review:", error);
-    res.status(500).json({ error: "Failed to add review" });
+    console.error("Error saving review:", error);
+    res.status(500).json({ error: "Failed to save review" });
+  }
+};
+
+const addReply = async (req, res) => {
+  const { reviewId } = req.params;
+  const { comment, userName } = req.body;
+
+  try {
+    const updatedReview = await Review.findByIdAndUpdate(
+      reviewId,
+      {
+        $push: {
+          replies: {
+            userName: userName || "Anonymous",
+            comment,
+          }
+        }
+      },
+      { new: true }
+    );
+
+    res.status(201).json(updatedReview);
+  } catch (error) {
+    res.status(500).json({ error: "Failed to add reply" });
   }
 };
 
 
 
 
-export { getAllMovies, getSpecificMovie, addMovieReview, getMovieCredits, getNewMovies, getTopMovies, getRandomMovies };
+export { getAllMovies, getSpecificMovie, addMovieReview,addReply, getMovieCredits, getNewMovies, getTopMovies, getRandomMovies };

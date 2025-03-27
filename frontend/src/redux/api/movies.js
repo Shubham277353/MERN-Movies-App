@@ -26,7 +26,7 @@ export const moviesApiSlice = apiSlice.injectEndpoints({
 
     addMovieReview: builder.mutation({
       query: ({ id, rating, comment }) => {
-        const token = localStorage.getItem('token') || '';
+        const token = localStorage.getItem('token');
         return {
           url: `${MOVIE_URL}/${id}/reviews`,
           method: "POST",
@@ -34,7 +34,6 @@ export const moviesApiSlice = apiSlice.injectEndpoints({
           headers: {
             Authorization: `Bearer ${token}`,
           },
-          credentials: 'include', // For cookies
         };
       },
     }),
